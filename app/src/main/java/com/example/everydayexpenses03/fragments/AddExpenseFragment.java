@@ -1,28 +1,30 @@
 package com.example.everydayexpenses03.fragments;
 
-import androidx.lifecycle.ViewModelProvider;
-
 import android.os.Bundle;
-
-import androidx.annotation.NonNull;
-import androidx.annotation.Nullable;
-import androidx.fragment.app.Fragment;
-
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.ArrayAdapter;
+import android.widget.AutoCompleteTextView;
+import android.widget.Button;
+import android.widget.EditText;
+import android.widget.Toast;
+
+import androidx.annotation.NonNull;
+import androidx.annotation.Nullable;
+import androidx.lifecycle.ViewModelProvider;
 
 import com.example.everydayexpenses03.R;
-import com.example.everydayexpenses03.viewmodels.AddExpenseViewModel;
+import com.example.everydayexpenses03.data.Expense;
+import com.example.everydayexpenses03.viewmodels.ExpenseViewModel;
 import com.google.android.material.bottomsheet.BottomSheetDialogFragment;
 
 public class AddExpenseFragment extends BottomSheetDialogFragment {
 
-    private AddExpenseViewModel mViewModel;
-
-    public static AddExpenseFragment newInstance() {
-        return new AddExpenseFragment();
-    }
+    private ExpenseViewModel mViewModel;
+    private EditText etAmount, etNote;
+    private AutoCompleteTextView actvCategory;
+    private Button btnSave;
 
     @Override
     public View onCreateView(@NonNull LayoutInflater inflater, @Nullable ViewGroup container,
@@ -34,11 +36,49 @@ public class AddExpenseFragment extends BottomSheetDialogFragment {
     public void onViewCreated(@NonNull View view, @Nullable Bundle savedInstanceState) {
         super.onViewCreated(view, savedInstanceState);
 
-        // Initialize the ViewModel here
-        mViewModel = new ViewModelProvider(this).get(AddExpenseViewModel.class);
 
-        // This is also the best place to find your buttons/text fields
-        // Example: Button saveBtn = view.findViewById(R.id.save_button);
+        // 1. Initialize the SHARED ViewModel
+        mViewModel = new ViewModelProvider(requireActivity()).get(ExpenseViewModel.class);
+
+        // 2. Bind the UI elements from your fragment_add_expense.xml
+        etAmount = view.findViewById(R.id.etAmount); // Ensure these IDs match your XML
+        etNote = view.findViewById(R.id.etNotes);
+        btnSave = view.findViewById(R.id.btnSaveExpense);
+
+        actvCategory = view.findViewById(R.id.actvCategory);
+
+        // Setup the adapter
+        String[] categories = getResources().getStringArray(R.array.expense_categories);
+        ArrayAdapter<String> adapter = new ArrayAdapter<>(requireContext(),
+                android.R.layout.simple_list_item_1, categories);
+        actvCategory.setAdapter(adapter);
+
+        btnSave.setOnClickListener(v -> saveExpense());
     }
 
+    private void saveExpense() {
+        String amountStr = etAmount.getText().toString().trim();
+        String category = actvCategory.getText().toString();
+        String note = etNote.getText().toString().trim();
+
+        // Simple Validation
+        if (amountStr.isEmpty() || category.isEmpty()) {
+            Toast.makeText(getContext(), "Please enter amount and category", Toast.LENGTH_SHORT).show();
+            return;
+        }
+
+        double amount = Double.parseDouble(amountStr);
+        long currentTime = System.currentTimeMillis();
+
+        // Create the Expense object (matching our lean Entity)
+        Expense expense = new Expense(category, amount, note, currentTime);
+
+        // Save to Database via ViewModel
+        mViewModel.insert(expense);
+
+        // Close the Bottom Sheet
+        dismiss();
+
+        Toast.makeText(getContext(), "Expense Saved!", Toast.LENGTH_SHORT).show();
+    }
 }

@@ -1,3 +1,13 @@
 <resources>
     <string name="app_name">EverydayExpenses03</string>
+    <string-array name="expense_categories">
+        <item>Food &amp; Drinks</item>
+        <item>Transportation</item>
+        <item>Shopping</item>
+        <item>Bills</item>
+        <item>Health</item>
+        <item>Education</item>
+        <item>Others</item>
+    </string-array>
 </resources>
+
