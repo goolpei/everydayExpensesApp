@@ -36,4 +36,8 @@ public interface ExpenseDao {
     // 6. Clear all data (Optional, but very useful for testing)
     @Query("DELETE FROM expense_table")
     void deleteAllExpenses();
+
+
+    @Query("SELECT SUM(amount) FROM expense_table WHERE timestamp >= :startOfDay")
+    LiveData<Double> getTodaysTotal(long startOfDay);
 }

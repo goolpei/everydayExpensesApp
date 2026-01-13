@@ -28,4 +28,20 @@ public class DateUtils {
         calendar.set(Calendar.MINUTE, 0);
         return calendar.getTimeInMillis();
     }
+
+    public static long getStartOfDay() {
+        Calendar calendar = Calendar.getInstance();
+        calendar.set(Calendar.HOUR_OF_DAY, 0);
+        calendar.set(Calendar.MINUTE, 0);
+        calendar.set(Calendar.SECOND, 0);
+        calendar.set(Calendar.MILLISECOND, 0);
+        return calendar.getTimeInMillis();
+    }
+
+    public static String getFormattedToday() {
+        // "MMM" is short month (Jan), "d" is day, "yyyy" is year
+        SimpleDateFormat sdf = new SimpleDateFormat("MMM d, yyyy", Locale.getDefault());
+        String datePart = sdf.format(new Date());
+        return "Today • " + datePart;
+    }
 }

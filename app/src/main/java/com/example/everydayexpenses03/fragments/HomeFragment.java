@@ -12,11 +12,13 @@ import androidx.recyclerview.widget.RecyclerView;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.TextView;
 import android.widget.Toast;
 
 import com.example.everydayexpenses03.R;
 import com.example.everydayexpenses03.adapter.ExpenseAdapter;
 import com.example.everydayexpenses03.data.Expense;
+import com.example.everydayexpenses03.utils.DateUtils;
 import com.example.everydayexpenses03.viewmodels.ExpenseViewModel;
 import com.google.android.material.floatingactionbutton.FloatingActionButton;
 import com.google.android.material.snackbar.Snackbar;
@@ -40,6 +42,8 @@ public class HomeFragment extends Fragment {
     public void onViewCreated(@NonNull View view, @Nullable Bundle savedInstanceState) {
         super.onViewCreated(view, savedInstanceState);
 
+        TextView tvToday = view.findViewById(R.id.tvTodaysTotal);
+        TextView tvDate = view.findViewById(R.id.tvDate);
 
         RecyclerView recyclerView = view.findViewById(R.id.rvTodayExpenses);
         recyclerView.setLayoutManager(new LinearLayoutManager(getContext()));
@@ -48,12 +52,27 @@ public class HomeFragment extends Fragment {
         adapter = new ExpenseAdapter();
         recyclerView.setAdapter(adapter);
 
+        tvDate.setText(DateUtils.getFormattedToday());
+
         mViewModel = new ViewModelProvider(requireActivity()).get(ExpenseViewModel.class);
+
+        mViewModel.getTodaysTotal().observe(getViewLifecycleOwner(), total -> {
+            if (total != null) {
+                tvToday.setText(String.format("₱%.2f", total));
+            } else {
+                // If there are no expenses yet, Room returns null
+                tvToday.setText("₱0.00");
+            }
+        });
 
         // 3. OBSERVE the data - This is where the magic happens!
         mViewModel.getAllExpenses().observe(getViewLifecycleOwner(), expenses -> {
             // Whenever the database changes, this code runs automatically
             adapter.setExpenses(expenses);
+            // Automatically scroll to the top so the user sees the new item
+            if (expenses.size() > 0) {
+                recyclerView.scrollToPosition(0);
+            }
         });
         new ItemTouchHelper(new ItemTouchHelper.SimpleCallback(0, ItemTouchHelper.LEFT | ItemTouchHelper.RIGHT) {
             @Override

@@ -8,6 +8,7 @@ import androidx.lifecycle.LiveData;
 
 import com.example.everydayexpenses03.data.Expense;
 import com.example.everydayexpenses03.data.ExpenseRepository;
+import com.example.everydayexpenses03.utils.DateUtils;
 
 import java.util.List;
 
@@ -28,6 +29,11 @@ public class ExpenseViewModel extends AndroidViewModel {
 
     public void delete(Expense expense) {
         repository.delete(expense);
+    }
+
+    public LiveData<Double> getTodaysTotal() {
+        // We get the start of today's timestamp here
+        return repository.getTodaysTotal(DateUtils.getStartOfDay());
     }
 
     // You can add more methods here to expose Repository functions to your Fragments

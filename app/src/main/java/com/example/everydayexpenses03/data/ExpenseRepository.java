@@ -43,4 +43,8 @@ public class ExpenseRepository {
     public void delete(Expense expense) {
         databaseWriteExecutor.execute(() -> expenseDao.delete(expense));
     }
+
+    public LiveData<Double> getTodaysTotal(long start) {
+        return expenseDao.getTodaysTotal(start);
+    }
 }
