@@ -26,5 +26,9 @@ public class ExpenseViewModel extends AndroidViewModel {
 
     public void insert(Expense expense) { repository.insert(expense); }
 
+    public void delete(Expense expense) {
+        repository.delete(expense);
+    }
+
     // You can add more methods here to expose Repository functions to your Fragments
 }

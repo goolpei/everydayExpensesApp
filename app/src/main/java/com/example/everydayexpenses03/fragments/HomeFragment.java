@@ -5,16 +5,21 @@ import android.os.Bundle;
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.fragment.app.Fragment;
+import androidx.recyclerview.widget.ItemTouchHelper;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.Toast;
+
 import com.example.everydayexpenses03.R;
 import com.example.everydayexpenses03.adapter.ExpenseAdapter;
+import com.example.everydayexpenses03.data.Expense;
 import com.example.everydayexpenses03.viewmodels.ExpenseViewModel;
 import com.google.android.material.floatingactionbutton.FloatingActionButton;
+import com.google.android.material.snackbar.Snackbar;
 
 public class HomeFragment extends Fragment {
 
@@ -50,6 +55,32 @@ public class HomeFragment extends Fragment {
             // Whenever the database changes, this code runs automatically
             adapter.setExpenses(expenses);
         });
+        new ItemTouchHelper(new ItemTouchHelper.SimpleCallback(0, ItemTouchHelper.LEFT | ItemTouchHelper.RIGHT) {
+            @Override
+            public boolean onMove(@NonNull RecyclerView recyclerView, @NonNull RecyclerView.ViewHolder viewHolder, @NonNull RecyclerView.ViewHolder target) {
+                return false; // We don't need drag-and-drop
+            }
+
+            @Override
+            public void onSwiped(@NonNull RecyclerView.ViewHolder viewHolder, int direction) {
+                // 1. Get the position of the swiped item
+                int position = viewHolder.getAdapterPosition();
+
+                // 2. Get the expense at that position from the adapter
+                // (You'll need to add a getExpenseAt(int pos) method to your Adapter)
+                Expense expenseToDelete = adapter.getExpenseAt(position);
+
+                // 3. Delete it via ViewModel
+                mViewModel.delete(expenseToDelete);
+
+                // Show a message with an Undo button
+                Snackbar.make(recyclerView, "Expense deleted", Snackbar.LENGTH_LONG)
+                        .setAction("UNDO", v -> {
+                            // If they click UNDO, just re-insert it!
+                            mViewModel.insert(expenseToDelete);
+                        }).show();
+            }
+        }).attachToRecyclerView(recyclerView);
 
         FloatingActionButton fab = view.findViewById(R.id.fabAddExpense);
 

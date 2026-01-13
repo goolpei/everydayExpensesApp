@@ -82,4 +82,7 @@ public class ExpenseAdapter extends RecyclerView.Adapter<ExpenseAdapter.ExpenseH
             tvNote = itemView.findViewById(R.id.tvNote);
         }
     }
+    public Expense getExpenseAt(int position) {
+        return expenses.get(position);
+    }
 }

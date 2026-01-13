@@ -58,7 +58,7 @@ public class AddExpenseFragment extends BottomSheetDialogFragment {
 
     private void saveExpense() {
         String amountStr = etAmount.getText().toString().trim();
-        String category = actvCategory.getText().toString();
+        String category = actvCategory.getText().toString().trim();
         String note = etNote.getText().toString().trim();
 
         // Simple Validation
@@ -66,8 +66,15 @@ public class AddExpenseFragment extends BottomSheetDialogFragment {
             Toast.makeText(getContext(), "Please enter amount and category", Toast.LENGTH_SHORT).show();
             return;
         }
+        category = category.substring(0, 1).toUpperCase() + category.substring(1).toLowerCase();
 
-        double amount = Double.parseDouble(amountStr);
+        double amount;
+        try {
+            amount = Double.parseDouble(amountStr);
+        } catch (NumberFormatException e) {
+            Toast.makeText(getContext(), "Invalid amount format", Toast.LENGTH_SHORT).show();
+            return;
+        }
         long currentTime = System.currentTimeMillis();
 
         // Create the Expense object (matching our lean Entity)
@@ -79,6 +86,5 @@ public class AddExpenseFragment extends BottomSheetDialogFragment {
         // Close the Bottom Sheet
         dismiss();
 
-        Toast.makeText(getContext(), "Expense Saved!", Toast.LENGTH_SHORT).show();
     }
 }
