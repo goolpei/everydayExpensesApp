@@ -18,57 +18,68 @@ import com.google.android.material.bottomnavigation.BottomNavigationView;
 public class MainActivity extends AppCompatActivity {
     private BottomNavigationView bottomNav;
 
+    // We keep these instances so they aren't destroyed
+    private final Fragment homeFragment = new HomeFragment();
+    private final Fragment summaryFragment = new SummaryFragment();
+    private final Fragment historyFragment = new HistoryFragment();
+    private Fragment activeFragment = homeFragment;
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         EdgeToEdge.enable(this);
 
-        // These are great for the seamless look!
+        // 1. MUST set the content view first!
+        setContentView(R.layout.activity_main);
+
         getWindow().setStatusBarColor(android.graphics.Color.TRANSPARENT);
         getWindow().setNavigationBarColor(android.graphics.Color.TRANSPARENT);
 
-        setContentView(R.layout.activity_main);
+        // 2. Initialize Views
+        bottomNav = findViewById(R.id.bottomNav);
 
-        // COMBINED INSET LISTENER
+        // 3. Setup Fragments ONLY on the first launch
+        if (savedInstanceState == null) {
+            getSupportFragmentManager().beginTransaction()
+                    .add(R.id.fragment_container, historyFragment, "3").hide(historyFragment)
+                    .add(R.id.fragment_container, summaryFragment, "2").hide(summaryFragment)
+                    .add(R.id.fragment_container, homeFragment, "1") // Home is visible by default
+                    .setReorderingAllowed(true)
+                    .commit();
+        }
+
+        // 4. Handle Edge-to-Edge Insets
         ViewCompat.setOnApplyWindowInsetsListener(findViewById(R.id.main), (v, insets) -> {
             Insets systemBars = insets.getInsets(WindowInsetsCompat.Type.systemBars());
-            // We apply top padding for status bar, but 0 for bottom
-            // so the BottomNav stays flush against the bottom of the screen.
             v.setPadding(systemBars.left, systemBars.top, systemBars.right, 0);
             return insets;
         });
 
-        bottomNav = findViewById(R.id.bottomNav);
-
-        // DEFAULT FRAGMENT
-        if (savedInstanceState == null) {
-            loadFragment(new HomeFragment());
-        }
-
+        // 5. Navigation Listener
         bottomNav.setOnItemSelectedListener(item -> {
-            Fragment selectedFragment = null;
             int id = item.getItemId();
-
             if (id == R.id.nav_home) {
-                selectedFragment = new HomeFragment();
+                showFragment(homeFragment);
+                return true;
             } else if (id == R.id.nav_summary) {
-                selectedFragment = new SummaryFragment();
+                showFragment(summaryFragment);
+                return true;
             } else if (id == R.id.nav_history) {
-                selectedFragment = new HistoryFragment();
+                showFragment(historyFragment);
+                return true;
             }
-
-            if (selectedFragment != null) {
-                loadFragment(selectedFragment);
-            }
-            return true;
+            return false;
         });
     }
 
-    // HELPER METHOD to reduce code repetition and fix jitter
-    private void loadFragment(Fragment fragment) {
-        getSupportFragmentManager().beginTransaction()
-                .replace(R.id.fragment_container, fragment)
-                .setReorderingAllowed(true) // THIS FIXES THE JITTER
-                .commit();
+    private void showFragment(Fragment fragment) {
+        if (fragment != activeFragment) {
+            getSupportFragmentManager().beginTransaction()
+                    .hide(activeFragment)
+                    .show(fragment)
+                    .setReorderingAllowed(true)
+                    .commit();
+            activeFragment = fragment;
+        }
     }
 }

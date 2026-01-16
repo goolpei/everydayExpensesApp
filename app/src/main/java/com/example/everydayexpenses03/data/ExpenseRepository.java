@@ -26,6 +26,11 @@ public class ExpenseRepository {
         return allExpenses;
     }
 
+
+    public LiveData<List<Expense>> getRecentExpenses(long startTime) {
+        return expenseDao.getRecentExpenses(startTime);
+    }
+
     public LiveData<Double> getWeeklyTotal(long start, long end) {
         return expenseDao.getTotalSpentInRange(start, end);
     }

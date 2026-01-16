@@ -52,6 +52,7 @@ public class HomeFragment extends Fragment {
         adapter = new ExpenseAdapter();
         recyclerView.setAdapter(adapter);
 
+        long limitTimestamp = DateUtils.getTwoDaysAgoStart();
         tvDate.setText(DateUtils.getFormattedToday());
 
         mViewModel = new ViewModelProvider(requireActivity()).get(ExpenseViewModel.class);
@@ -66,11 +67,11 @@ public class HomeFragment extends Fragment {
         });
 
         // 3. OBSERVE the data - This is where the magic happens!
-        mViewModel.getAllExpenses().observe(getViewLifecycleOwner(), expenses -> {
+        mViewModel.getRecentExpenses(limitTimestamp).observe(getViewLifecycleOwner(), expenses -> {
             // Whenever the database changes, this code runs automatically
             adapter.setExpenses(expenses);
             // Automatically scroll to the top so the user sees the new item
-            if (expenses.size() > 0) {
+            if (!expenses.isEmpty()) {
                 recyclerView.scrollToPosition(0);
             }
         });

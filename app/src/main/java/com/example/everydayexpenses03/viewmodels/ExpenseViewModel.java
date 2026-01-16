@@ -25,6 +25,11 @@ public class ExpenseViewModel extends AndroidViewModel {
 
     public LiveData<List<Expense>> getAllExpenses() { return allExpenses; }
 
+    public LiveData<List<Expense>> getRecentExpenses(long startTime) {
+        return repository.getRecentExpenses(startTime);
+    }
+
+
     public void insert(Expense expense) { repository.insert(expense); }
 
     public void delete(Expense expense) {

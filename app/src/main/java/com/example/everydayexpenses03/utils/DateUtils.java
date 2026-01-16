@@ -20,6 +20,7 @@ public class DateUtils {
         return calendar.getTimeInMillis();
     }
 
+
     // Gets the timestamp for the start of the current month
     public static long getStartOfMonth() {
         Calendar calendar = Calendar.getInstance();
@@ -43,5 +44,15 @@ public class DateUtils {
         SimpleDateFormat sdf = new SimpleDateFormat("MMM d, yyyy", Locale.getDefault());
         String datePart = sdf.format(new Date());
         return "Today • " + datePart;
+    }
+
+    public static long getTwoDaysAgoStart() {
+        Calendar calendar = Calendar.getInstance();
+        calendar.add(Calendar.DAY_OF_YEAR, -1); // Go back 1 day (Yesterday)
+        calendar.set(Calendar.HOUR_OF_DAY, 0);
+        calendar.set(Calendar.MINUTE, 0);
+        calendar.set(Calendar.SECOND, 0);
+        calendar.set(Calendar.MILLISECOND, 0);
+        return calendar.getTimeInMillis();
     }
 }

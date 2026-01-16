@@ -10,6 +10,9 @@
     android:paddingHorizontal="16dp"
     android:paddingTop="14dp"
 
+    android:background="?android:attr/windowBackground"
+    android:clickable="true"
+    android:focusable="true"
     tools:context=".fragments.HomeFragment">
 
     <!-- TITLE: Today's Date and Total Spent -->

@@ -7,28 +7,33 @@
     android:layout_height="match_parent"
     android:padding="16dp"
     android:id="@+id/main"
+    android:background="?android:attr/windowBackground"
+    android:clickable="true"
+    android:focusable="true"
     tools:context=".fragments.SummaryFragment">
 
-    <!-- TITLE -->
     <TextView
         android:id="@+id/tvSummaryTitle"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
+        android:layout_marginStart="10dp"
         android:text="Summary"
         android:textSize="26sp"
         android:textStyle="bold"
         app:layout_constraintTop_toTopOf="parent"
         app:layout_constraintStart_toStartOf="parent" />
 
-    <!-- WEEKLY SUMMARY -->
     <com.google.android.material.card.MaterialCardView
         android:id="@+id/cardWeekly"
+        android:layout_marginTop="10dp"
+        android:layout_marginBottom="5dp"
         android:layout_width="0dp"
-        android:layout_height="wrap_content"
-        android:layout_marginTop="16dp"
+        android:layout_height="0dp"
         app:cardCornerRadius="20dp"
         app:cardElevation="5dp"
+        app:layout_constraintVertical_chainStyle="spread"
         app:layout_constraintTop_toBottomOf="@id/tvSummaryTitle"
+        app:layout_constraintBottom_toTopOf="@+id/cardMonthly"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintEnd_toEndOf="parent">
 
@@ -37,44 +42,21 @@
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:orientation="vertical">
-
-            <TextView
-                android:text="This Week"
-                android:textColor="#666"
-                android:textSize="16sp"
-                android:textStyle="bold"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content" />
-
-            <TextView
-                android:id="@+id/tvWeeklyTotal"
-                android:text="₱0.00"
-                android:textSize="32sp"
-                android:textStyle="bold"
-                android:paddingTop="6dp"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content" />
-
-            <TextView
-                android:text="Total Spent This Week"
-                android:textColor="#777"
-                android:textSize="14sp"
-                android:paddingTop="4dp"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content" />
+            <TextView android:text="This Week" android:textStyle="bold" android:layout_width="wrap_content" android:layout_height="wrap_content" />
+            <TextView android:id="@+id/tvWeeklyTotal" android:text="₱0.00" android:textSize="32sp" android:textStyle="bold" android:layout_width="wrap_content" android:layout_height="wrap_content" />
+            <TextView android:text="Total Spent This Week" android:layout_width="wrap_content" android:layout_height="wrap_content" />
         </LinearLayout>
-
     </com.google.android.material.card.MaterialCardView>
 
-    <!-- MONTHLY SUMMARY -->
     <com.google.android.material.card.MaterialCardView
         android:id="@+id/cardMonthly"
+        android:layout_marginVertical="5dp"
         android:layout_width="0dp"
-        android:layout_height="wrap_content"
-        android:layout_marginTop="16dp"
+        android:layout_height="0dp"
         app:cardCornerRadius="20dp"
         app:cardElevation="5dp"
         app:layout_constraintTop_toBottomOf="@id/cardWeekly"
+        app:layout_constraintBottom_toTopOf="@+id/cardDailyAverage"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintEnd_toEndOf="parent">
 
@@ -83,44 +65,21 @@
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:orientation="vertical">
-
-            <TextView
-                android:text="This Month"
-                android:textColor="#666"
-                android:textSize="16sp"
-                android:textStyle="bold"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content" />
-
-            <TextView
-                android:id="@+id/tvMonthlyTotal"
-                android:text="₱0.00"
-                android:textSize="32sp"
-                android:textStyle="bold"
-                android:paddingTop="6dp"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content" />
-
-            <TextView
-                android:text="Total Spent This Month"
-                android:textColor="#777"
-                android:textSize="14sp"
-                android:paddingTop="4dp"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content" />
+            <TextView android:text="This Month" android:textStyle="bold" android:layout_width="wrap_content" android:layout_height="wrap_content" />
+            <TextView android:id="@+id/tvMonthlyTotal" android:text="₱0.00" android:textSize="32sp" android:textStyle="bold" android:layout_width="wrap_content" android:layout_height="wrap_content" />
+            <TextView android:text="Total Spent This Month" android:layout_width="wrap_content" android:layout_height="wrap_content" />
         </LinearLayout>
-
     </com.google.android.material.card.MaterialCardView>
 
-    <!-- DAILY AVERAGE -->
     <com.google.android.material.card.MaterialCardView
         android:id="@+id/cardDailyAverage"
+        android:layout_marginTop="5dp"
         android:layout_width="0dp"
-        android:layout_height="wrap_content"
-        android:layout_marginTop="16dp"
+        android:layout_height="0dp"
         app:cardCornerRadius="20dp"
         app:cardElevation="5dp"
         app:layout_constraintTop_toBottomOf="@id/cardMonthly"
+        app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintEnd_toEndOf="parent">
 
@@ -129,33 +88,10 @@
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:orientation="vertical">
-
-            <TextView
-                android:text="Daily Average"
-                android:textColor="#666"
-                android:textSize="16sp"
-                android:textStyle="bold"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content" />
-
-            <TextView
-                android:id="@+id/tvDailyAverage"
-                android:text="₱0.00"
-                android:textSize="32sp"
-                android:textStyle="bold"
-                android:paddingTop="6dp"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content" />
-
-            <TextView
-                android:text="Average Per Day"
-                android:textColor="#777"
-                android:textSize="14sp"
-                android:paddingTop="4dp"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content" />
+            <TextView android:text="Daily Average" android:textStyle="bold" android:layout_width="wrap_content" android:layout_height="wrap_content" />
+            <TextView android:id="@+id/tvDailyAverage" android:text="₱0.00" android:textSize="32sp" android:textStyle="bold" android:layout_width="wrap_content" android:layout_height="wrap_content" />
+            <TextView android:text="Average Per Day" android:layout_width="wrap_content" android:layout_height="wrap_content" />
         </LinearLayout>
-
     </com.google.android.material.card.MaterialCardView>
 
 </androidx.constraintlayout.widget.ConstraintLayout>

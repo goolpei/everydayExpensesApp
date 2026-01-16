@@ -14,14 +14,27 @@ public interface ExpenseDao {
     @Insert
     void insert(Expense expense);
 
+
+
     // 2. Daily Log: Get all expenses sorted by newest first
     @Query("SELECT * FROM expense_table ORDER BY timestamp DESC")
     LiveData<List<Expense>> getAllExpenses();
+
+
+    // Get recent expenses (two days ago)
+    @Query("SELECT * FROM expense_table WHERE timestamp >= :startTime ORDER BY timestamp DESC")
+    LiveData<List<Expense>> getRecentExpenses(long startTime);
+
 
     // 3. Weekly/Monthly Summary: Sum totals between two time periods
     // We will pass the start and end times from our DateUtils
     @Query("SELECT SUM(amount) FROM expense_table WHERE timestamp BETWEEN :startTime AND :endTime")
     LiveData<Double> getTotalSpentInRange(long startTime, long endTime);
+
+
+
+
+
 
     // 4. Average Expenses per Day:
     // This divides the total sum by the count of unique days found in the table
@@ -36,6 +49,9 @@ public interface ExpenseDao {
     // 6. Clear all data (Optional, but very useful for testing)
     @Query("DELETE FROM expense_table")
     void deleteAllExpenses();
+
+
+
 
 
     @Query("SELECT SUM(amount) FROM expense_table WHERE timestamp >= :startOfDay")
