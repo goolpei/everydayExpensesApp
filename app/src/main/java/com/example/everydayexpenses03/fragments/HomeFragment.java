@@ -52,29 +52,22 @@ public class HomeFragment extends Fragment {
         adapter = new ExpenseAdapter();
         recyclerView.setAdapter(adapter);
 
-        long limitTimestamp = DateUtils.getTwoDaysAgoStart();
         tvDate.setText(DateUtils.getFormattedToday());
 
         mViewModel = new ViewModelProvider(requireActivity()).get(ExpenseViewModel.class);
 
         mViewModel.getTodaysTotal().observe(getViewLifecycleOwner(), total -> {
-            if (total != null) {
-                tvToday.setText(String.format("₱%.2f", total));
-            } else {
-                // If there are no expenses yet, Room returns null
-                tvToday.setText("₱0.00");
-            }
+            tvToday.setText(String.format("₱%.2f", total != null ? total : 0.0));
         });
 
         // 3. OBSERVE the data - This is where the magic happens!
-        mViewModel.getRecentExpenses(limitTimestamp).observe(getViewLifecycleOwner(), expenses -> {
-            // Whenever the database changes, this code runs automatically
+        mViewModel.getRecentExpenses().observe(getViewLifecycleOwner(), expenses -> {
             adapter.setExpenses(expenses);
-            // Automatically scroll to the top so the user sees the new item
             if (!expenses.isEmpty()) {
                 recyclerView.scrollToPosition(0);
             }
         });
+
         new ItemTouchHelper(new ItemTouchHelper.SimpleCallback(0, ItemTouchHelper.LEFT | ItemTouchHelper.RIGHT) {
             @Override
             public boolean onMove(@NonNull RecyclerView recyclerView, @NonNull RecyclerView.ViewHolder viewHolder, @NonNull RecyclerView.ViewHolder target) {

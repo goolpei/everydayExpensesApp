@@ -1,7 +1,6 @@
 package com.example.everydayexpenses03.viewmodels;
 
 import android.app.Application;
-
 import androidx.annotation.NonNull;
 import androidx.lifecycle.AndroidViewModel;
 import androidx.lifecycle.LiveData;
@@ -23,23 +22,52 @@ public class ExpenseViewModel extends AndroidViewModel {
         allExpenses = repository.getAllExpenses();
     }
 
-    public LiveData<List<Expense>> getAllExpenses() { return allExpenses; }
+    // =========================================================================
+    // 1. WRITE OPERATIONS (Events from UI)
+    // =========================================================================
 
-    public LiveData<List<Expense>> getRecentExpenses(long startTime) {
-        return repository.getRecentExpenses(startTime);
+    public void insert(Expense expense) {
+        repository.insert(expense);
     }
-
-
-    public void insert(Expense expense) { repository.insert(expense); }
 
     public void delete(Expense expense) {
         repository.delete(expense);
     }
 
+    // =========================================================================
+    // 2. LIST QUERIES (Data for RecyclerViews)
+    // =========================================================================
+
+    public LiveData<List<Expense>> getAllExpenses() {
+        return allExpenses;
+    }
+
+    public LiveData<List<Expense>> getRecentExpenses() {
+        long twoDaysAgo = DateUtils.getTwoDaysAgoStart();
+        return repository.getRecentExpenses(twoDaysAgo);
+    }
+
+    // =========================================================================
+    // 3. STATS & MATH QUERIES (Data for Summary Cards)
+    // =========================================================================
+
     public LiveData<Double> getTodaysTotal() {
-        // We get the start of today's timestamp here
         return repository.getTodaysTotal(DateUtils.getStartOfDay());
     }
 
-    // You can add more methods here to expose Repository functions to your Fragments
+    public LiveData<Double> getWeeklyTotal() {
+        long start = DateUtils.getStartOfWeek();
+        long end = System.currentTimeMillis() + 86400000; // Today + 1 day padding
+        return repository.getWeeklyTotal(start, end);
+    }
+
+    public LiveData<Double> getMonthlyTotal() {
+        long start = DateUtils.getStartOfMonth();
+        long now = System.currentTimeMillis();
+        return repository.getWeeklyTotal(start, now); // Reuses the same "Range" query from Repo
+    }
+
+    public LiveData<Double> getDailyAverage() {
+        return repository.getDailyAverage();
+    }
 }

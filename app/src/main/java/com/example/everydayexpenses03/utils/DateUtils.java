@@ -7,52 +7,64 @@ import java.util.Locale;
 
 public class DateUtils {
 
-    // Converts the long timestamp (e.g. 1705084800000) into "Jan 12, 2026"
+    // =========================================================================
+    // 1. FORMATTING (For the UI)
+    // =========================================================================
+
+    public static String getFormattedToday() {
+        SimpleDateFormat sdf = new SimpleDateFormat("EEEE, MMM d", Locale.getDefault());
+        return sdf.format(new Date());
+    }
     public static String formatDate(long timestamp) {
-        SimpleDateFormat sdf = new SimpleDateFormat("MMM dd, yyyy", Locale.getDefault());
+        // This format shows: Jan 24, 8:30 AM
+        SimpleDateFormat sdf = new SimpleDateFormat("MMM d, h:mm a", Locale.getDefault());
         return sdf.format(new Date(timestamp));
     }
 
-    // Gets the timestamp for exactly 7 days ago (useful for Weekly Summary)
-    public static long getSevenDaysAgo() {
-        Calendar calendar = Calendar.getInstance();
-        calendar.add(Calendar.DAY_OF_YEAR, -7);
-        return calendar.getTimeInMillis();
-    }
-
-
-    // Gets the timestamp for the start of the current month
-    public static long getStartOfMonth() {
-        Calendar calendar = Calendar.getInstance();
-        calendar.set(Calendar.DAY_OF_MONTH, 1);
-        calendar.set(Calendar.HOUR_OF_DAY, 0);
-        calendar.set(Calendar.MINUTE, 0);
-        return calendar.getTimeInMillis();
-    }
+    // =========================================================================
+    // 2. DAILY LOGIC (For Home Screen)
+    // =========================================================================
 
     public static long getStartOfDay() {
-        Calendar calendar = Calendar.getInstance();
-        calendar.set(Calendar.HOUR_OF_DAY, 0);
-        calendar.set(Calendar.MINUTE, 0);
-        calendar.set(Calendar.SECOND, 0);
-        calendar.set(Calendar.MILLISECOND, 0);
-        return calendar.getTimeInMillis();
-    }
-
-    public static String getFormattedToday() {
-        // "MMM" is short month (Jan), "d" is day, "yyyy" is year
-        SimpleDateFormat sdf = new SimpleDateFormat("MMM d, yyyy", Locale.getDefault());
-        String datePart = sdf.format(new Date());
-        return "Today • " + datePart;
+        Calendar cal = Calendar.getInstance();
+        resetTimeToStartOfDay(cal);
+        return cal.getTimeInMillis();
     }
 
     public static long getTwoDaysAgoStart() {
-        Calendar calendar = Calendar.getInstance();
-        calendar.add(Calendar.DAY_OF_YEAR, -1); // Go back 1 day (Yesterday)
-        calendar.set(Calendar.HOUR_OF_DAY, 0);
-        calendar.set(Calendar.MINUTE, 0);
-        calendar.set(Calendar.SECOND, 0);
-        calendar.set(Calendar.MILLISECOND, 0);
-        return calendar.getTimeInMillis();
+        Calendar cal = Calendar.getInstance();
+        cal.add(Calendar.DAY_OF_YEAR, -1); // Go back to "Yesterday"
+        resetTimeToStartOfDay(cal);
+        return cal.getTimeInMillis();
+    }
+
+    // =========================================================================
+    // 3. PERIODIC LOGIC (For Summary Screen)
+    // =========================================================================
+
+    public static long getStartOfWeek() {
+        Calendar cal = Calendar.getInstance();
+        // Set to the first day of the current week (usually Sunday or Monday)
+        cal.set(Calendar.DAY_OF_WEEK, cal.getFirstDayOfWeek());
+        resetTimeToStartOfDay(cal);
+        return cal.getTimeInMillis();
+    }
+
+    public static long getStartOfMonth() {
+        Calendar cal = Calendar.getInstance();
+        cal.set(Calendar.DAY_OF_MONTH, 1);
+        resetTimeToStartOfDay(cal);
+        return cal.getTimeInMillis();
+    }
+
+    // =========================================================================
+    // 4. PRIVATE HELPERS (To reduce clutter)
+    // =========================================================================
+
+    private static void resetTimeToStartOfDay(Calendar cal) {
+        cal.set(Calendar.HOUR_OF_DAY, 0);
+        cal.set(Calendar.MINUTE, 0);
+        cal.set(Calendar.SECOND, 0);
+        cal.set(Calendar.MILLISECOND, 0);
     }
 }

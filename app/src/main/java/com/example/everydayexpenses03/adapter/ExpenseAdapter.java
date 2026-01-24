@@ -62,8 +62,11 @@ public class ExpenseAdapter extends RecyclerView.Adapter<ExpenseAdapter.ExpenseH
                 // Check if the amount or note changed
                 Expense oldExp = expenses.get(oldItemPosition);
                 Expense newExp = newExpenses.get(newItemPosition);
+
                 return oldExp.getAmount() == newExp.getAmount() &&
-                        oldExp.getCategory().equals(newExp.getCategory());
+                        oldExp.getCategory().equals(newExp.getCategory()) &&
+                        oldExp.getTimestamp() == newExp.getTimestamp() &&
+                        oldExp.getNote().equals(newExp.getNote());
             }
         });
 

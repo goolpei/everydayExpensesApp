@@ -10,8 +10,6 @@ public class ExpenseRepository {
 
     private final ExpenseDao expenseDao;
     private final LiveData<List<Expense>> allExpenses;
-
-    // We use this to run database writes (Insert/Delete) in the background
     private final ExecutorService databaseWriteExecutor = Executors.newFixedThreadPool(4);
 
     public ExpenseRepository(Application application) {
@@ -20,26 +18,9 @@ public class ExpenseRepository {
         allExpenses = expenseDao.getAllExpenses();
     }
 
-    // --- METHODS TO GET DATA (Room handles these background tasks automatically) ---
-
-    public LiveData<List<Expense>> getAllExpenses() {
-        return allExpenses;
-    }
-
-
-    public LiveData<List<Expense>> getRecentExpenses(long startTime) {
-        return expenseDao.getRecentExpenses(startTime);
-    }
-
-    public LiveData<Double> getWeeklyTotal(long start, long end) {
-        return expenseDao.getTotalSpentInRange(start, end);
-    }
-
-    public LiveData<Double> getDailyAverage() {
-        return expenseDao.getAverageDailyExpense();
-    }
-
-    // --- METHODS TO CHANGE DATA (Must be run on a background thread) ---
+    // =========================================================================
+    // 1. WRITE OPERATIONS (Must be run on a background thread)
+    // =========================================================================
 
     public void insert(Expense expense) {
         databaseWriteExecutor.execute(() -> expenseDao.insert(expense));
@@ -49,7 +30,31 @@ public class ExpenseRepository {
         databaseWriteExecutor.execute(() -> expenseDao.delete(expense));
     }
 
-    public LiveData<Double> getTodaysTotal(long start) {
-        return expenseDao.getTodaysTotal(start);
+    // =========================================================================
+    // 2. LIST QUERIES (Room handles background execution for LiveData)
+    // =========================================================================
+
+    public LiveData<List<Expense>> getAllExpenses() {
+        return allExpenses;
+    }
+
+    public LiveData<List<Expense>> getRecentExpenses(long startTime) {
+        return expenseDao.getRecentExpenses(startTime);
+    }
+
+    // =========================================================================
+    // 3. STATS & MATH QUERIES (Returning Single Values)
+    // =========================================================================
+
+    public LiveData<Double> getTodaysTotal(long startOfDay) {
+        return expenseDao.getTodaysTotal(startOfDay);
+    }
+
+    public LiveData<Double> getWeeklyTotal(long start, long end) {
+        return expenseDao.getTotalSpentInRange(start, end);
+    }
+
+    public LiveData<Double> getDailyAverage() {
+        return expenseDao.getAverageDailyExpense();
     }
 }
