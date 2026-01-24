@@ -46,6 +46,11 @@ public class ExpenseViewModel extends AndroidViewModel {
         long twoDaysAgo = DateUtils.getTwoDaysAgoStart();
         return repository.getRecentExpenses(twoDaysAgo);
     }
+    public LiveData<List<Expense>> getExpensesByDate(int year, int month, int day) {
+        long start = DateUtils.getStartOfSpecificDay(year, month, day);
+        long end = DateUtils.getEndOfSpecificDay(year, month, day);
+        return repository.getExpensesByDate(start, end);
+    }
 
     // =========================================================================
     // 3. STATS & MATH QUERIES (Data for Summary Cards)
@@ -69,5 +74,10 @@ public class ExpenseViewModel extends AndroidViewModel {
 
     public LiveData<Double> getDailyAverage() {
         return repository.getDailyAverage();
+    }
+    public LiveData<Double> getTotalForSpecificDay(int year, int month, int day) {
+        long start = DateUtils.getStartOfSpecificDay(year, month, day);
+        long end = DateUtils.getEndOfSpecificDay(year, month, day);
+        return repository.getWeeklyTotal(start, end); // Reusing the range sum query!
     }
 }

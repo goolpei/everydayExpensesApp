@@ -41,6 +41,9 @@ public class ExpenseRepository {
     public LiveData<List<Expense>> getRecentExpenses(long startTime) {
         return expenseDao.getRecentExpenses(startTime);
     }
+    public LiveData<List<Expense>> getExpensesByDate(long start, long end) {
+        return expenseDao.getExpensesByDate(start, end);
+    }
 
     // =========================================================================
     // 3. STATS & MATH QUERIES (Returning Single Values)

@@ -39,7 +39,7 @@ public class DateUtils {
     }
 
     // =========================================================================
-    // 3. PERIODIC LOGIC (For Summary Screen)
+    // 3. PERIODIC LOGIC (For Summary and History Screen)
     // =========================================================================
 
     public static long getStartOfWeek() {
@@ -54,6 +54,22 @@ public class DateUtils {
         Calendar cal = Calendar.getInstance();
         cal.set(Calendar.DAY_OF_MONTH, 1);
         resetTimeToStartOfDay(cal);
+        return cal.getTimeInMillis();
+    }
+
+    //History
+
+    public static long getStartOfSpecificDay(int year, int month, int dayOfMonth) {
+        Calendar cal = Calendar.getInstance();
+        cal.set(year, month, dayOfMonth, 0, 0, 0);
+        cal.set(Calendar.MILLISECOND, 0);
+        return cal.getTimeInMillis();
+    }
+
+    public static long getEndOfSpecificDay(int year, int month, int dayOfMonth) {
+        Calendar cal = Calendar.getInstance();
+        cal.set(year, month, dayOfMonth, 23, 59, 59);
+        cal.set(Calendar.MILLISECOND, 999);
         return cal.getTimeInMillis();
     }
 

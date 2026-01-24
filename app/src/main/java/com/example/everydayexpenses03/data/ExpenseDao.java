@@ -32,6 +32,8 @@ public interface ExpenseDao {
 
     @Query("SELECT * FROM expense_table WHERE timestamp >= :startTime ORDER BY timestamp DESC")
     LiveData<List<Expense>> getRecentExpenses(long startTime);
+    @Query("SELECT * FROM expense_table WHERE timestamp BETWEEN :startTime AND :endTime ORDER BY timestamp DESC")
+    LiveData<List<Expense>> getExpensesByDate(long startTime, long endTime);
 
     // =========================================================================
     // 3. STATS & MATH QUERIES (The "Aggregates")
