@@ -31,7 +31,7 @@ public class SummaryFragment extends Fragment {
 
         tvWeeklyTotal = view.findViewById(R.id.tvWeeklyTotal);
         tvMonthlyTotal = view.findViewById(R.id.tvMonthlyTotal);
-        tvDailyAverage = view.findViewById(R.id.tvDailyAverage);
+        //tvDailyAverage = view.findViewById(R.id.tvDailyAverage);
 
         mViewModel = new ViewModelProvider(requireActivity()).get(ExpenseViewModel.class);
 

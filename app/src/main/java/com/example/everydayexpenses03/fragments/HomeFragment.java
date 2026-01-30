@@ -63,35 +63,28 @@ public class HomeFragment extends Fragment {
         // 3. OBSERVE the data - This is where the magic happens!
         mViewModel.getRecentExpenses().observe(getViewLifecycleOwner(), expenses -> {
             adapter.setExpenses(expenses);
-            if (!expenses.isEmpty()) {
-                recyclerView.scrollToPosition(0);
-            }
         });
 
         new ItemTouchHelper(new ItemTouchHelper.SimpleCallback(0, ItemTouchHelper.LEFT | ItemTouchHelper.RIGHT) {
             @Override
             public boolean onMove(@NonNull RecyclerView recyclerView, @NonNull RecyclerView.ViewHolder viewHolder, @NonNull RecyclerView.ViewHolder target) {
-                return false; // We don't need drag-and-drop
+                return false;
             }
 
             @Override
             public void onSwiped(@NonNull RecyclerView.ViewHolder viewHolder, int direction) {
-                // 1. Get the position of the swiped item
-                int position = viewHolder.getAdapterPosition();
+                // CORRECTED: Use getBindingAdapterPosition()
+                int position = viewHolder.getBindingAdapterPosition();
 
-                // 2. Get the expense at that position from the adapter
-                // (You'll need to add a getExpenseAt(int pos) method to your Adapter)
-                Expense expenseToDelete = adapter.getExpenseAt(position);
+                // Safety Check: Sometimes animation delays make position return NO_POSITION (-1)
+                if (position != RecyclerView.NO_POSITION) {
+                    Expense expenseToDelete = adapter.getExpenseAt(position);
+                    mViewModel.delete(expenseToDelete);
 
-                // 3. Delete it via ViewModel
-                mViewModel.delete(expenseToDelete);
-
-                // Show a message with an Undo button
-                Snackbar.make(recyclerView, "Expense deleted", Snackbar.LENGTH_LONG)
-                        .setAction("UNDO", v -> {
-                            // If they click UNDO, just re-insert it!
-                            mViewModel.insert(expenseToDelete);
-                        }).show();
+                    Snackbar.make(recyclerView, "Expense deleted", Snackbar.LENGTH_LONG)
+                            .setAction("UNDO", v -> mViewModel.insert(expenseToDelete))
+                            .show();
+                }
             }
         }).attachToRecyclerView(recyclerView);
 

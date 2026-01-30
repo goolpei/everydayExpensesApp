@@ -30,7 +30,7 @@
     <com.google.android.material.card.MaterialCardView
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:layout_marginTop="1dp"
+        android:layout_marginTop="1.5dp"
         app:cardElevation="4dp"
         app:cardCornerRadius="0dp"
         app:strokeWidth="0dp"
