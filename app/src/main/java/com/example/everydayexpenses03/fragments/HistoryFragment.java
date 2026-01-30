@@ -11,12 +11,15 @@ import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.fragment.app.Fragment;
 import androidx.lifecycle.ViewModelProvider;
+import androidx.recyclerview.widget.ItemTouchHelper;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 
 import com.example.everydayexpenses03.R;
 import com.example.everydayexpenses03.adapter.ExpenseAdapter;
+import com.example.everydayexpenses03.data.Expense;
 import com.example.everydayexpenses03.viewmodels.ExpenseViewModel;
+import com.google.android.material.snackbar.Snackbar;
 
 import java.util.Calendar;
 
@@ -62,6 +65,30 @@ public class HistoryFragment extends Fragment {
         // 5. Set Initial State (Show today's data by default)
         Calendar today = Calendar.getInstance();
         updateHistoryUI(today.get(Calendar.YEAR), today.get(Calendar.MONTH), today.get(Calendar.DAY_OF_MONTH));
+
+        new ItemTouchHelper(new ItemTouchHelper.SimpleCallback(0, ItemTouchHelper.LEFT | ItemTouchHelper.RIGHT) {
+            @Override
+            public boolean onMove(@NonNull RecyclerView recyclerView, @NonNull RecyclerView.ViewHolder viewHolder, @NonNull RecyclerView.ViewHolder target) {
+                return false;
+            }
+
+            @Override
+            public void onSwiped(@NonNull RecyclerView.ViewHolder viewHolder, int direction) {
+                int position = viewHolder.getBindingAdapterPosition();
+
+                if (position != RecyclerView.NO_POSITION) {
+                    Expense expenseToDelete = adapter.getExpenseAt(position);
+
+                    // Delete from Database
+                    mViewModel.delete(expenseToDelete);
+
+                    // Show Snackbar on the Root View of the fragment
+                    Snackbar.make(view, "Deleted from history", Snackbar.LENGTH_LONG)
+                            .setAction("UNDO", v -> mViewModel.insert(expenseToDelete))
+                            .show();
+                }
+            }
+        }).attachToRecyclerView(recyclerView);
     }
     private void updateHistoryUI(int year, int month, int day) {
         // Update the date label
