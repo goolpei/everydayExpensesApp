@@ -90,6 +90,22 @@ public class HomeFragment extends Fragment {
 
         FloatingActionButton fab = view.findViewById(R.id.fabAddExpense);
 
+        recyclerView.addOnScrollListener(new RecyclerView.OnScrollListener() {
+            @Override
+            public void onScrolled(@NonNull RecyclerView recyclerView, int dx, int dy) {
+                super.onScrolled(recyclerView, dx, dy);
+
+                // dy > 0 means the user is scrolling DOWN
+                if (dy > 0 && fab.isShown()) {
+                    fab.hide();
+                }
+                // dy < 0 means the user is scrolling UP
+                else if (dy < 0 && !fab.isShown()) {
+                    fab.show();
+                }
+            }
+        });
+
         fab.setOnClickListener(v -> {
             AddExpenseFragment addExpenseSheet = new AddExpenseFragment();
             addExpenseSheet.show(getParentFragmentManager(), "add_expense");

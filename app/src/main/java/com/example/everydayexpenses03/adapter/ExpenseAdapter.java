@@ -28,6 +28,36 @@ public class ExpenseAdapter extends RecyclerView.Adapter<ExpenseAdapter.ExpenseH
     @Override
     public void onBindViewHolder(@NonNull ExpenseHolder holder, int position) {
         Expense current = expenses.get(position);
+
+        String currentDayOnly = DateUtils.formatDateOnly(current.getTimestamp());
+        String yesterdayLabel = DateUtils.getFormattedYesterday();
+
+        boolean isYesterday = currentDayOnly.equals(yesterdayLabel);
+        boolean showHeader = false;
+
+        if (isYesterday) {
+            if (position == 0) {
+                showHeader = true;
+            } else {
+                // Check if the previous item was NOT yesterday
+                String previousDayOnly = DateUtils.formatDateOnly(expenses.get(position - 1).getTimestamp());
+                if (!previousDayOnly.equals(yesterdayLabel)) {
+                    showHeader = true;
+                }
+            }
+        }
+
+        // 2. Set Visibility
+        if (showHeader) {
+            holder.tvSectionTitle.setVisibility(View.VISIBLE);
+            holder.tvSectionTitle.setText("Yesterday's Expenses");
+        } else {
+            holder.tvSectionTitle.setVisibility(View.GONE);
+        }
+
+
+
+
         holder.tvCategory.setText(current.getCategory());
         holder.tvAmount.setText(String.format("₱%.2f", current.getAmount()));
         holder.tvNote.setText(current.getNote());
@@ -75,7 +105,7 @@ public class ExpenseAdapter extends RecyclerView.Adapter<ExpenseAdapter.ExpenseH
     }
 
     class ExpenseHolder extends RecyclerView.ViewHolder {
-        private TextView tvCategory, tvAmount, tvDate, tvNote;
+        private TextView tvCategory, tvAmount, tvDate, tvNote, tvSectionTitle;
 
         public ExpenseHolder(@NonNull View itemView) {
             super(itemView);
@@ -83,6 +113,9 @@ public class ExpenseAdapter extends RecyclerView.Adapter<ExpenseAdapter.ExpenseH
             tvAmount = itemView.findViewById(R.id.tvAmount);
             tvDate = itemView.findViewById(R.id.tvDate);
             tvNote = itemView.findViewById(R.id.tvNote);
+
+            // Add the new TextView
+            tvSectionTitle = itemView.findViewById(R.id.tvSectionTitle);
         }
     }
     public Expense getExpenseAt(int position) {

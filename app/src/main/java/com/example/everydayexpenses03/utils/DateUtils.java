@@ -21,6 +21,12 @@ public class DateUtils {
         return sdf.format(new Date(timestamp));
     }
 
+    public static String formatDateOnly(long timestamp) {
+        // Just the day, no time! (e.g., "Feb 7, 2026")
+        SimpleDateFormat sdf = new SimpleDateFormat("MMM d, yyyy", Locale.getDefault());
+        return sdf.format(new Date(timestamp));
+    }
+
     // =========================================================================
     // 2. DAILY LOGIC (For Home Screen)
     // =========================================================================
@@ -36,6 +42,12 @@ public class DateUtils {
         cal.add(Calendar.DAY_OF_YEAR, -1); // Go back to "Yesterday"
         resetTimeToStartOfDay(cal);
         return cal.getTimeInMillis();
+    }
+
+    public static String getFormattedYesterday() {
+        Calendar cal = Calendar.getInstance();
+        cal.add(Calendar.DAY_OF_YEAR, -1);
+        return formatDateOnly(cal.getTimeInMillis());
     }
 
     // =========================================================================

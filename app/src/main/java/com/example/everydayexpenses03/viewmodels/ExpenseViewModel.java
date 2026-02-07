@@ -4,6 +4,8 @@ import android.app.Application;
 import androidx.annotation.NonNull;
 import androidx.lifecycle.AndroidViewModel;
 import androidx.lifecycle.LiveData;
+import androidx.lifecycle.MutableLiveData;
+import androidx.lifecycle.Transformations;
 
 import com.example.everydayexpenses03.data.Expense;
 import com.example.everydayexpenses03.data.ExpenseRepository;
@@ -13,13 +15,25 @@ import java.util.List;
 
 public class ExpenseViewModel extends AndroidViewModel {
 
+    private final MutableLiveData<long[]> historyDateFilter = new MutableLiveData<>();
     private final ExpenseRepository repository;
     private final LiveData<List<Expense>> allExpenses;
+
+    public final LiveData<List<Expense>> filteredHistoryExpenses;
+    public final LiveData<Double> filteredHistoryTotal;
 
     public ExpenseViewModel(@NonNull Application application) {
         super(application);
         repository = new ExpenseRepository(application);
         allExpenses = repository.getAllExpenses();
+
+        filteredHistoryExpenses = Transformations.switchMap(historyDateFilter, range ->
+                repository.getExpensesByDate(range[0], range[1])
+        );
+
+        filteredHistoryTotal = Transformations.switchMap(historyDateFilter, range ->
+                repository.getWeeklyTotal(range[0], range[1]) // Reusing your range sum query
+        );
     }
 
     // =========================================================================
@@ -32,6 +46,9 @@ public class ExpenseViewModel extends AndroidViewModel {
 
     public void delete(Expense expense) {
         repository.delete(expense);
+    }
+    public void setHistoryDate(long start, long end) {
+        historyDateFilter.setValue(new long[]{start, end});
     }
 
     // =========================================================================

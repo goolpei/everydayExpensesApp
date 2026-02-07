@@ -18,7 +18,9 @@ import androidx.recyclerview.widget.RecyclerView;
 import com.example.everydayexpenses03.R;
 import com.example.everydayexpenses03.adapter.ExpenseAdapter;
 import com.example.everydayexpenses03.data.Expense;
+import com.example.everydayexpenses03.utils.DateUtils;
 import com.example.everydayexpenses03.viewmodels.ExpenseViewModel;
+import com.google.android.material.floatingactionbutton.FloatingActionButton;
 import com.google.android.material.snackbar.Snackbar;
 
 import java.util.Calendar;
@@ -43,6 +45,7 @@ public class HistoryFragment extends Fragment {
     public void onViewCreated(@NonNull View view, @Nullable Bundle savedInstanceState) {
         super.onViewCreated(view, savedInstanceState);
 
+
         // 1. Initialize Views
         tvHistoryDayTotal = view.findViewById(R.id.tvHistoryDayTotal);
         tvSelectedDate = view.findViewById(R.id.tvSelectedDate);
@@ -57,14 +60,25 @@ public class HistoryFragment extends Fragment {
         // 3. Setup ViewModel (using requireActivity for sharing)
         mViewModel = new ViewModelProvider(requireActivity()).get(ExpenseViewModel.class);
 
-        // 4. Handle Calendar Clicks
-        calendarView.setOnDateChangeListener((cv, year, month, dayOfMonth) -> {
-            updateHistoryUI(year, month, dayOfMonth);
+        // Set up Observers ONCE.
+        // We observe the "filtered" variables directly.
+        mViewModel.filteredHistoryExpenses.observe(getViewLifecycleOwner(), expenses -> {
+            // DiffUtil will now handle the updates perfectly!
+            adapter.setExpenses(expenses);
         });
 
-        // 5. Set Initial State (Show today's data by default)
+        mViewModel.filteredHistoryTotal.observe(getViewLifecycleOwner(), total -> {
+            tvHistoryDayTotal.setText(String.format("₱%.2f", total != null ? total : 0.0));
+        });
+
+        // Calendar Event
+        calendarView.setOnDateChangeListener((cv, year, month, dayOfMonth) -> {
+            updateDate(year, month, dayOfMonth);
+        });
+        // Set Initial Date (Today)
         Calendar today = Calendar.getInstance();
-        updateHistoryUI(today.get(Calendar.YEAR), today.get(Calendar.MONTH), today.get(Calendar.DAY_OF_MONTH));
+        updateDate(today.get(Calendar.YEAR), today.get(Calendar.MONTH), today.get(Calendar.DAY_OF_MONTH));
+
 
         new ItemTouchHelper(new ItemTouchHelper.SimpleCallback(0, ItemTouchHelper.LEFT | ItemTouchHelper.RIGHT) {
             @Override
@@ -89,25 +103,55 @@ public class HistoryFragment extends Fragment {
                 }
             }
         }).attachToRecyclerView(recyclerView);
+
+
+
+
+        FloatingActionButton fabToday = view.findViewById(R.id.fabToday);
+
+        recyclerView.addOnScrollListener(new RecyclerView.OnScrollListener() {
+            @Override
+            public void onScrolled(@NonNull RecyclerView recyclerView, int dx, int dy) {
+                super.onScrolled(recyclerView, dx, dy);
+
+                // dy > 0 means the user is scrolling DOWN
+                if (dy > 0 && fabToday.isShown()) {
+                    fabToday.hide();
+                }
+                // dy < 0 means the user is scrolling UP
+                else if (dy < 0 && !fabToday.isShown()) {
+                    fabToday.show();
+                }
+            }
+        });
+
+        view.findViewById(R.id.fabToday).setOnClickListener(v -> {
+            long todayMillis = today.getTimeInMillis();
+
+            // 1. Move the CalendarView visually
+            calendarView.setDate(todayMillis, true, true);
+
+            // 2. Trigger the data update
+            updateDate(
+                    today.get(Calendar.YEAR),
+                    today.get(Calendar.MONTH),
+                    today.get(Calendar.DAY_OF_MONTH)
+            );
+        });
+
+
+
     }
-    private void updateHistoryUI(int year, int month, int day) {
-        // Update the date label
-        String dateString = String.format("%d/%d/%d", month + 1, day, year);
-        tvSelectedDate.setText(dateString);
 
-        // Remove old observers to prevent multiple "streams" of data
-        mViewModel.getExpensesByDate(year, month, day).removeObservers(getViewLifecycleOwner());
-        mViewModel.getTotalForSpecificDay(year, month, day).removeObservers(getViewLifecycleOwner());
+    private void updateDate(int year, int month, int day) {
+        // Update the UI label
+        tvSelectedDate.setText(String.format("%d/%d/%d", month + 1, day, year));
 
-        // Observe the list for the selected day
-        mViewModel.getExpensesByDate(year, month, day).observe(getViewLifecycleOwner(), expenses -> {
-            adapter.setExpenses(expenses);
-        });
+        // Convert date to timestamps using your DateUtils
+        long start = DateUtils.getStartOfSpecificDay(year, month, day);
+        long end = DateUtils.getEndOfSpecificDay(year, month, day);
 
-        // Observe the total for the selected day
-        mViewModel.getTotalForSpecificDay(year, month, day).observe(getViewLifecycleOwner(), total -> {
-            double value = (total != null) ? total : 0.0;
-            tvHistoryDayTotal.setText(String.format("₱%.2f", value));
-        });
+        // Just push the new dates to the ViewModel
+        mViewModel.setHistoryDate(start, end);
     }
 }
