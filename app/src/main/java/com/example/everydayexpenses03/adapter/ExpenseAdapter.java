@@ -16,6 +16,7 @@ import java.util.List;
 public class ExpenseAdapter extends RecyclerView.Adapter<ExpenseAdapter.ExpenseHolder> {
 
     private List<Expense> expenses = new ArrayList<>();
+    private boolean showHeaders = true;
 
     @NonNull
     @Override
@@ -29,29 +30,31 @@ public class ExpenseAdapter extends RecyclerView.Adapter<ExpenseAdapter.ExpenseH
     public void onBindViewHolder(@NonNull ExpenseHolder holder, int position) {
         Expense current = expenses.get(position);
 
-        String currentDayOnly = DateUtils.formatDateOnly(current.getTimestamp());
-        String yesterdayLabel = DateUtils.getFormattedYesterday();
+        if (showHeaders) { // <--- ADD THIS CHECK
+            String currentDayOnly = DateUtils.formatDateOnly(current.getTimestamp());
+            String yesterdayLabel = DateUtils.getFormattedYesterday();
+            boolean isYesterday = currentDayOnly.equals(yesterdayLabel);
+            boolean showHeader = false;
 
-        boolean isYesterday = currentDayOnly.equals(yesterdayLabel);
-        boolean showHeader = false;
-
-        if (isYesterday) {
-            if (position == 0) {
-                showHeader = true;
-            } else {
-                // Check if the previous item was NOT yesterday
-                String previousDayOnly = DateUtils.formatDateOnly(expenses.get(position - 1).getTimestamp());
-                if (!previousDayOnly.equals(yesterdayLabel)) {
+            if (isYesterday) {
+                if (position == 0) {
                     showHeader = true;
+                } else {
+                    String previousDayOnly = DateUtils.formatDateOnly(expenses.get(position - 1).getTimestamp());
+                    if (!previousDayOnly.equals(yesterdayLabel)) {
+                        showHeader = true;
+                    }
                 }
             }
-        }
 
-        // 2. Set Visibility
-        if (showHeader) {
-            holder.tvSectionTitle.setVisibility(View.VISIBLE);
-            holder.tvSectionTitle.setText("Yesterday's Expenses");
+            if (showHeader) {
+                holder.tvSectionTitle.setVisibility(View.VISIBLE);
+                holder.tvSectionTitle.setText("Yesterday's Expenses");
+            } else {
+                holder.tvSectionTitle.setVisibility(View.GONE);
+            }
         } else {
+            // If showHeaders is false, ALWAYS hide the title
             holder.tvSectionTitle.setVisibility(View.GONE);
         }
 
@@ -120,5 +123,9 @@ public class ExpenseAdapter extends RecyclerView.Adapter<ExpenseAdapter.ExpenseH
     }
     public Expense getExpenseAt(int position) {
         return expenses.get(position);
+    }
+
+    public void setShowHeaders(boolean showHeaders) {
+        this.showHeaders = showHeaders;
     }
 }

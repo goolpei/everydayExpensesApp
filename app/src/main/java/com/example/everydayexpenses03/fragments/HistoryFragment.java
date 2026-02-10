@@ -55,6 +55,7 @@ public class HistoryFragment extends Fragment {
         // 2. Setup RecyclerView
         recyclerView.setLayoutManager(new LinearLayoutManager(getContext()));
         adapter = new ExpenseAdapter();
+        adapter.setShowHeaders(false); // don't show "Yesterday's Expenses" Header
         recyclerView.setAdapter(adapter);
 
         // 3. Setup ViewModel (using requireActivity for sharing)

@@ -1,6 +1,8 @@
 package com.example.everydayexpenses03.fragments;
 
 import android.os.Bundle;
+import android.text.Editable;
+import android.text.TextWatcher;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -18,13 +20,20 @@ import com.example.everydayexpenses03.R;
 import com.example.everydayexpenses03.data.Expense;
 import com.example.everydayexpenses03.viewmodels.ExpenseViewModel;
 import com.google.android.material.bottomsheet.BottomSheetDialogFragment;
+import com.google.android.material.textfield.TextInputEditText;
+import com.google.android.material.textfield.TextInputLayout;
 
 public class AddExpenseFragment extends BottomSheetDialogFragment {
 
     private ExpenseViewModel mViewModel;
-    private EditText etAmount, etNote;
+    private EditText etNote;
+    private TextInputEditText etAmount;
     private AutoCompleteTextView actvCategory;
     private Button btnSave;
+
+
+    private TextInputLayout amountLayout;
+    private TextInputLayout categoryLayout;
 
     @Override
     public View onCreateView(@NonNull LayoutInflater inflater, @Nullable ViewGroup container,
@@ -44,8 +53,13 @@ public class AddExpenseFragment extends BottomSheetDialogFragment {
         etAmount = view.findViewById(R.id.etAmount); // Ensure these IDs match your XML
         etNote = view.findViewById(R.id.etNotes);
         btnSave = view.findViewById(R.id.btnSaveExpense);
-
         actvCategory = view.findViewById(R.id.actvCategory);
+
+        amountLayout = view.findViewById(R.id.tilAmount);
+        categoryLayout = view.findViewById(R.id.tilCategory);
+
+        setupErrorWatcher(amountLayout, etAmount);
+        setupErrorWatcher(categoryLayout, actvCategory);
 
         // Setup the adapter
         String[] categories = getResources().getStringArray(R.array.expense_categories);
@@ -61,30 +75,50 @@ public class AddExpenseFragment extends BottomSheetDialogFragment {
         String category = actvCategory.getText().toString().trim();
         String note = etNote.getText().toString().trim();
 
-        // Simple Validation
-        if (amountStr.isEmpty() || category.isEmpty()) {
-            Toast.makeText(getContext(), "Please enter amount and category", Toast.LENGTH_SHORT).show();
+        // 1. Validate Category first (it's a simple string check)
+        if (category.isEmpty()) {
+            categoryLayout.setError("Please select a category");
             return;
         }
+
+        // 2. Validate Amount
+        double amount = 0;
+        try {
+            if (amountStr.isEmpty()) {
+                amountLayout.setError("Please enter amount");
+                return;
+            }
+            amount = Double.parseDouble(amountStr);
+            if (amount <= 0) { // Handles zero and negative numbers in one go
+                amountLayout.setError("Amount must be greater than zero");
+                return;
+            }
+        } catch (NumberFormatException e) {
+            amountLayout.setError("Invalid number format");
+            return;
+        }
+
+        // 3. Normalization (Only happens if validation passes)
         category = category.substring(0, 1).toUpperCase() + category.substring(1).toLowerCase();
 
-        double amount;
-        try {
-            amount = Double.parseDouble(amountStr);
-        } catch (NumberFormatException e) {
-            Toast.makeText(getContext(), "Invalid amount format", Toast.LENGTH_SHORT).show();
-            return;
-        }
-        long currentTime = System.currentTimeMillis();
-
-        // Create the Expense object (matching our lean Entity)
-        Expense expense = new Expense(category, amount, note, currentTime);
-
-        // Save to Database via ViewModel
-        mViewModel.insert(expense);
-
-        // Close the Bottom Sheet
+        // 4. Save
+        mViewModel.insert(new Expense(category, amount, note, System.currentTimeMillis()));
         dismiss();
+    }
 
+    private void setupErrorWatcher(TextInputLayout layout, EditText editText) {
+        editText.addTextChangedListener(new TextWatcher() {
+            @Override
+            public void onTextChanged(CharSequence s, int start, int before, int count) {
+                // As soon as the user types something, clear the error
+                if (s.length() > 0) {
+                    layout.setError(null);
+                    layout.setErrorEnabled(false); // Optional: collapses the error space
+                }
+            }
+
+            @Override public void beforeTextChanged(CharSequence s, int start, int count, int after) {}
+            @Override public void afterTextChanged(Editable s) {}
+        });
     }
 }
