@@ -13,3 +13,15 @@
 .externalNativeBuild
 .cxx
 local.properties
+
+# Room Database & User Data
+*.db
+*.db-shm
+*.db-wal
+**/schemas/
+*.csv
+
+# Secrets
+.env
+*.jks
+*.keystore
